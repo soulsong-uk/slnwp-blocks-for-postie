@@ -1,10 +1,10 @@
 === SLNWP Html and MD Blocks for Postie ===
-Contributors: soulsong-uk
+Contributors: jainanda
 Tags: postie, email, markdown, gutenberg, blocks
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 0.1.18
+Stable tag: 0.1.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,9 @@ Wrap the part of the email you want parsed as Markdown in `<md>` and `</md>` tag
 This is deliberate, not automatic: this plugin never guesses whether some arbitrary content "looks like" Markdown - only content inside an explicit `<md>...</md>` block is ever parsed as Markdown. Content outside the wrapper (or the whole email, if you don't use one) is treated as plain content. As a side benefit, content inside `<md>...</md>` is also fully shielded from Postie's own content-processing (its newline-collapsing, `---`-line signature stripping, and `#subject#` inline-subject extraction all run before this plugin ever sees the content, and could otherwise silently damage unwrapped Markdown syntax that happens to resemble one of those conventions) - using `<md>` sidesteps all of that automatically, with no workaround needed.
 
 == Changelog ==
+
+= 0.1.19 =
+* Change: text domain is now slnwp-blocks-for-postie to match the WordPress.org plugin slug, so translate.wordpress.org language packs load
 
 = 0.1.18 =
 * Change: Cosmetic rename to "SLNWP Html and MD Blocks for Postie" (slug slnwp-blocks-for-postie): display name, bootstrap filename, Plugin URI, readme title, and Strings copy - namespace, constants, option name, text domain unchanged

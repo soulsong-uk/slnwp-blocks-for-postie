@@ -33,22 +33,22 @@ class Strings
     {
         return [
             // Bootstrap (slnwp-blocks-for-postie.php) - missing-dependency admin notice
-            'requires_postie_notice' => __('SLNWP Html and MD Blocks for Postie requires the Postie plugin to be installed and active - it has no effect on its own.', 'html-md-blocks-for-postie'),
+            'requires_postie_notice' => __('SLNWP Html and MD Blocks for Postie requires the Postie plugin to be installed and active - it has no effect on its own.', 'slnwp-blocks-for-postie'),
 
             // Settings page (src/Settings.php) - menu + page heading
-            'menu_title'   => __('HTML & Markdown Blocks', 'html-md-blocks-for-postie'),
-            'page_heading' => __('SLNWP Html and MD Blocks for Postie', 'html-md-blocks-for-postie'),
+            'menu_title'   => __('HTML & Markdown Blocks', 'slnwp-blocks-for-postie'),
+            'page_heading' => __('SLNWP Html and MD Blocks for Postie', 'slnwp-blocks-for-postie'),
 
             // Settings page - Content Conversion subsection
-            'content_conversion_heading'    => __('Content Conversion', 'html-md-blocks-for-postie'),
-            'markdown_toggle_label'         => __('Convert Markdown to Gutenberg Blocks', 'html-md-blocks-for-postie'),
-            'markdown_toggle_desc'          => __('Wrap any part of your email in <md> and </md> tags to turn it into nicely styled content — headings, bold, italic, links, images, and lists all get formatted automatically.', 'html-md-blocks-for-postie'),
-            'markdown_toggle_desc_outside'  => __('Anything outside the <md> tags stays as plain text, exactly as written.', 'html-md-blocks-for-postie'),
-            'markdown_toggle_example_label' => __('Example:', 'html-md-blocks-for-postie'),
+            'content_conversion_heading'    => __('Content Conversion', 'slnwp-blocks-for-postie'),
+            'markdown_toggle_label'         => __('Convert Markdown to Gutenberg Blocks', 'slnwp-blocks-for-postie'),
+            'markdown_toggle_desc'          => __('Wrap any part of your email in <md> and </md> tags to turn it into nicely styled content — headings, bold, italic, links, images, and lists all get formatted automatically.', 'slnwp-blocks-for-postie'),
+            'markdown_toggle_desc_outside'  => __('Anything outside the <md> tags stays as plain text, exactly as written.', 'slnwp-blocks-for-postie'),
+            'markdown_toggle_example_label' => __('Example:', 'slnwp-blocks-for-postie'),
             /* translators: this is a literal <md> Markdown syntax example shown verbatim in a <pre> block, not prose - kept translatable in case a locale wants to show a translated sample. */
-            'markdown_toggle_example'       => __("<md>\n# Welcome!\nThis is **bold** and this is *italic*.\n- Item one\n- Item two\n</md>", 'html-md-blocks-for-postie'),
-            'html_toggle_label' => __('Convert content into native Gutenberg blocks', 'html-md-blocks-for-postie'),
-            'html_toggle_desc'  => __('Wraps the finished content - including any Markdown conversion above - in real Gutenberg block markup (paragraphs, headings, images, lists, quotes), so the post opens as separate, individually editable blocks instead of one Classic/HTML block.', 'html-md-blocks-for-postie'),
+            'markdown_toggle_example'       => __("<md>\n# Welcome!\nThis is **bold** and this is *italic*.\n- Item one\n- Item two\n</md>", 'slnwp-blocks-for-postie'),
+            'html_toggle_label' => __('Convert content into native Gutenberg blocks', 'slnwp-blocks-for-postie'),
+            'html_toggle_desc'  => __('Wraps the finished content - including any Markdown conversion above - in real Gutenberg block markup (paragraphs, headings, images, lists, quotes), so the post opens as separate, individually editable blocks instead of one Classic/HTML block.', 'slnwp-blocks-for-postie'),
         ];
     }
 }

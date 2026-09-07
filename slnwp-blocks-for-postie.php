@@ -3,18 +3,18 @@
  * Plugin Name: SLNWP Html and MD Blocks for Postie
  * Plugin URI:  https://github.com/soulsong-uk/slnwp-blocks-for-postie
  * Description: Addon for Postie that converts emailed content into native Gutenberg blocks (paragraphs, headings, images, lists, quotes) instead of Postie's default raw HTML output - with optional Markdown parsing for senders who want to style their email more expressively.
- * Version:     0.1.18
+ * Version:     0.1.19
  * Requires at least: 6.2
  * Requires PHP: 8.2
  * Requires Plugins: postie
  * Author:      James Harvey 
  * License:     GPLv2 or later
- * Text Domain: html-md-blocks-for-postie
+ * Text Domain: slnwp-blocks-for-postie
  */
 
 defined('ABSPATH') || exit;
 
-define('HTML_MD_BLOCKS_FOR_POSTIE_VERSION', '0.1.18');
+define('HTML_MD_BLOCKS_FOR_POSTIE_VERSION', '0.1.19');
 define('HTML_MD_BLOCKS_FOR_POSTIE_PLUGIN_FILE', __FILE__);
 define('HTML_MD_BLOCKS_FOR_POSTIE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('HTML_MD_BLOCKS_FOR_POSTIE_PLUGIN_URL', plugin_dir_url(__FILE__));

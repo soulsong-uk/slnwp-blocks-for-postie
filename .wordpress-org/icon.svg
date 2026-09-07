@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  WordPress.org plugin-directory icon for "SLNWP Html and MD Blocks for Postie".
+  PLACEHOLDER - refine or replace freely. A PNG fallback is still REQUIRED
+  alongside this file in SVN /assets/ (icon-128x128.png and icon-256x256.png):
+  older browsers and social/OpenGraph embeds do not use the SVG.
+
+  Concept: an emailed message (top block, with an envelope flap) becoming a
+  stack of individually-editable content blocks.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="SLNWP Html and MD Blocks for Postie">
+  <rect width="256" height="256" rx="56" fill="#2B6CB0"/>
+  <g fill="#FFFFFF">
+    <rect x="44" y="54" width="168" height="62" rx="12"/>
+    <rect x="44" y="130" width="168" height="38" rx="12"/>
+    <rect x="44" y="182" width="120" height="38" rx="12"/>
+  </g>
+  <path d="M60 66 L128 104 L196 66" fill="none" stroke="#2B6CB0" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
