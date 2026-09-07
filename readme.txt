@@ -45,6 +45,10 @@ Wrap the part of the email you want parsed as Markdown in `<md>` and `</md>` tag
 
 This is deliberate, not automatic: this plugin never guesses whether some arbitrary content "looks like" Markdown - only content inside an explicit `<md>...</md>` block is ever parsed as Markdown. Content outside the wrapper (or the whole email, if you don't use one) is treated as plain content. As a side benefit, content inside `<md>...</md>` is also fully shielded from Postie's own content-processing (its newline-collapsing, `---`-line signature stripping, and `#subject#` inline-subject extraction all run before this plugin ever sees the content, and could otherwise silently damage unwrapped Markdown syntax that happens to resemble one of those conventions) - using `<md>` sidesteps all of that automatically, with no workaround needed.
 
+== Screenshots ==
+
+1. The plugin's settings page, under Postie's menu - turn HTML block conversion and Markdown parsing on or off independently.
+
 == Changelog ==
 
 = 0.1.19 =
