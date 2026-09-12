@@ -4,7 +4,7 @@ Tags: postie, email, markdown, gutenberg, blocks
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 0.1.19
+Stable tag: 0.1.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,9 @@ This is deliberate, not automatic: this plugin never guesses whether some arbitr
 1. The plugin's settings page, under Postie's menu - turn HTML block conversion and Markdown parsing on or off independently.
 
 == Changelog ==
+
+= 0.1.20 =
+* Fix: handle Outlook for Android's literal angle-bracket-wrapped auto-linked URLs so they no longer leak as spurious text paragraphs
 
 = 0.1.19 =
 * Change: text domain is now slnwp-blocks-for-postie to match the WordPress.org plugin slug, so translate.wordpress.org language packs load
