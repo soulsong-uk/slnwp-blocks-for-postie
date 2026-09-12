@@ -63,6 +63,7 @@ class HtmlToBlocks
         }
 
         $html = $this->flattenNestedAnchors($html);
+        $html = $this->stripBracketWrappedAnchors($html);
 
         $dom = $g_postie->load_html($html);
         if (!$dom) {
@@ -116,6 +117,44 @@ class HtmlToBlocks
             if (!is_string($result)) {
                 // preg_replace failed (e.g. backtracking limit) - never
                 // return a truncated/empty string, keep the last good HTML.
+                break;
+            }
+            $html = $result;
+        } while ($count > 0);
+
+        return $html;
+    }
+
+    /**
+     * Strips a single literal "<" immediately before, and a single literal
+     * ">" immediately after, a well-formed <a href="...">...</a> anchor -
+     * before the DOM is even parsed, same rationale as
+     * flattenNestedAnchors(). Outlook for Android (relayed through Gmail)
+     * routinely emits a URL wrapped in the RFC-3986-style "<URL>" bare-URL
+     * convention, but with the URL text inside already auto-linked into a
+     * real anchor tag rather than left as plain text - i.e.
+     * "<<a href=\"URL\">TEXT</a>>" instead of "<TEXT>" or a plain anchor.
+     * simple_html_dom has no recovery for a "<" immediately followed by
+     * another "<" (not a valid tag-name start) - confirmed empirically
+     * against Postie's own bundled parser: it emits the leading "<<" as one
+     * literal text node, then treats everything from "a href=...">" up to
+     * (but not including) the real "</a>" as a second literal text node,
+     * drops the "</a>" itself (already handled by
+     * isOrphanedTagFragment() - it looks like an unmatched closing tag by
+     * that point), and finally emits the trailing ">" as a third literal
+     * text node. Root-caused live against post 7949 on the "laurie" site
+     * (an Outlook-for-Android/Gmail email, two occurrences: a website link
+     * in the message body and the "Sent from Outlook for Android<link>"
+     * signature) - the malformed markup surfaced as three spurious
+     * "<<" / "a href=...">TEXT" / ">" paragraphs sitting in the published
+     * post. Looped until stable, matching flattenNestedAnchors().
+     */
+    private function stripBracketWrappedAnchors(string $html): string
+    {
+        $pattern = '/<\s*(<a\b[^>]*>.*?<\/a>)\s*>/is';
+        do {
+            $result = preg_replace($pattern, '$1', $html, -1, $count);
+            if (!is_string($result)) {
                 break;
             }
             $html = $result;
