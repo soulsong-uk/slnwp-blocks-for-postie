@@ -4,7 +4,7 @@ Tags: postie, email, markdown, gutenberg, blocks
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 0.1.20
+Stable tag: 0.1.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,11 @@ This is deliberate, not automatic: this plugin never guesses whether some arbitr
 1. The plugin's settings page, under Postie's menu - turn HTML block conversion and Markdown parsing on or off independently.
 
 == Changelog ==
+
+= 0.1.21 =
+* Fix: split plain-text emails into separate paragraph blocks on blank lines instead of one giant block
+* New: option to strip paragraph blocks that are only a non-breaking-space placeholder
+* New: warning on the settings page when Postie's Preferred Text Type is set to Plain
 
 = 0.1.20 =
 * Fix: handle Outlook for Android's literal angle-bracket-wrapped auto-linked URLs so they no longer leak as spurious text paragraphs
