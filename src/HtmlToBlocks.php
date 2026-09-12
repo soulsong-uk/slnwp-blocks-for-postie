@@ -37,16 +37,37 @@ defined('ABSPATH') || exit;
 class HtmlToBlocks
 {
     /**
+     * Whether a paragraph chunk whose only "content" is a non-breaking-space
+     * placeholder (see isWhitespacePlaceholder()) should be dropped instead
+     * of becoming its own core/paragraph block - set fresh at the start of
+     * every convert() call from the caller's own
+     * Settings::isStripEmptyParagraphsEnabled() check, not read directly
+     * from Settings here, to keep this class's actual conversion logic
+     * settings-agnostic and independently testable. Safe as instance state
+     * despite this object being reused across every email Postie processes
+     * in one run: PHP is single-threaded per request, convert() always sets
+     * it before use, and the value is a fixed admin setting for the whole
+     * run, never varying mid-request. Defaults off because hasVisibleText()
+     * elsewhere in this class deliberately treats "&nbsp;" as real, visible
+     * content - a genuine spacer paragraph a sender intentionally left - and
+     * that stays the default for everyone; this only overrides it for an
+     * account that has opted in.
+     */
+    private bool $stripEmptyParagraphs = false;
+
+    /**
      * @return string Serialized block markup, or the original $html
      *                unchanged if nothing could be converted or anything
      *                goes wrong - never risk corrupting the post.
      */
-    public function convert(string $html, AttachmentRegistry $registry): string
+    public function convert(string $html, AttachmentRegistry $registry, bool $stripEmptyParagraphs = false): string
     {
         $html = trim($html);
         if ($html === '') {
             return $html;
         }
+
+        $this->stripEmptyParagraphs = $stripEmptyParagraphs;
 
         try {
             return $this->convertInternal($html, $registry);
@@ -180,7 +201,11 @@ class HtmlToBlocks
             if ($text === '' || $this->isOrphanedTagFragment($text)) {
                 return [];
             }
-            return [$this->paragraphBlock($text, $inheritedAlign)];
+            $blocks = [];
+            foreach ($this->splitOnBlankLines($text) as $chunk) {
+                $blocks[] = $this->paragraphBlock($chunk, $inheritedAlign);
+            }
+            return $blocks;
         }
 
         if ($node->nodetype !== HDOM_TYPE_ELEMENT) {
@@ -480,9 +505,8 @@ class HtmlToBlocks
             $anchorNode = ($childTag === 'a' && $imgNode !== null) ? $child : null;
 
             if ($imgNode !== null) {
-                $pending = trim($buffer);
-                if ($this->hasVisibleText($pending)) {
-                    $blocks[] = $this->paragraphBlock($pending, $align);
+                foreach ($this->splitOnBlankLines($buffer) as $chunk) {
+                    $blocks[] = $this->paragraphBlock($chunk, $align);
                 }
                 $buffer = '';
 
@@ -509,9 +533,8 @@ class HtmlToBlocks
                 // top-level conversion instead, so it becomes its own
                 // proper block (and, for a heading, picks up its own
                 // alignment from its own attributes independently).
-                $pending = trim($buffer);
-                if ($this->hasVisibleText($pending)) {
-                    $blocks[] = $this->paragraphBlock($pending, $align);
+                foreach ($this->splitOnBlankLines($buffer) as $chunk) {
+                    $blocks[] = $this->paragraphBlock($chunk, $align);
                 }
                 $buffer = '';
 
@@ -522,12 +545,90 @@ class HtmlToBlocks
             $buffer .= (string) $child->outertext;
         }
 
-        $pending = trim($buffer);
-        if ($this->hasVisibleText($pending)) {
-            $blocks[] = $this->paragraphBlock($pending, $align);
+        foreach ($this->splitOnBlankLines($buffer) as $chunk) {
+            $blocks[] = $this->paragraphBlock($chunk, $align);
         }
 
         return $blocks;
+    }
+
+    /**
+     * Splits raw paragraph text on blank-line boundaries (two or more
+     * consecutive line breaks) into separate chunks, each destined for its
+     * own core/paragraph block - trimmed, and dropped if it has no visible
+     * text (see hasVisibleText()). Plain-text emails processed with Postie's
+     * own "Filter Newlines" account setting turned off (a real, supported
+     * Postie configuration - confirmed live on the "laurie" site) arrive at
+     * this plugin completely unprocessed: the entire message body as one
+     * literal blob of text with real blank lines still in it, wrapped in a
+     * single source <p> (or not wrapped at all). Without this split,
+     * HtmlToBlocks - which otherwise only maps *existing* HTML structure to
+     * blocks and never restructures raw text - had no way to turn that back
+     * into the same per-paragraph block structure the sender's own message
+     * visually has, and instead emitted the entire multi-paragraph email as
+     * one giant core/paragraph block. A blank line is the universal,
+     * unambiguous plain-text paragraph-break convention (unlike guessing at
+     * Markdown syntax, which this plugin deliberately no longer does outside
+     * an explicit <md> block - see the class docblock) - a single line break
+     * within a paragraph (ordinary word-wrap, or a poem's own line breaks)
+     * is intentionally left alone and stays part of the same block, so a
+     * word-wrapped prose paragraph isn't fractured into one block per line.
+     *
+     * When $this->stripEmptyParagraphs is set (Settings::
+     * isStripEmptyParagraphsEnabled(), an admin-configurable per-site
+     * toggle), a chunk that is nothing but a non-breaking-space placeholder
+     * (see isWhitespacePlaceholder()) is dropped instead of becoming its own
+     * block - added for a real sender ("laurie") whose mail client (Outlook,
+     * confirmed live on post 7959) sends real per-line HTML with a literal
+     * "<p>&nbsp;</p>" for every blank line in her compose window, producing
+     * dozens of visually-empty paragraph blocks. hasVisibleText() alone
+     * won't drop these - it deliberately treats "&nbsp;" as real content,
+     * since for most senders a lone non-breaking space *is* a genuine
+     * spacer paragraph left on purpose - so this is opt-in, not the default.
+     *
+     * @return array<int,string>
+     */
+    private function splitOnBlankLines(string $html): array
+    {
+        $parts = preg_split('/(?:\r?\n[ \t]*){2,}/', $html);
+        if (!is_array($parts)) {
+            $parts = [$html];
+        }
+
+        $chunks = [];
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (!$this->hasVisibleText($part)) {
+                continue;
+            }
+            if ($this->stripEmptyParagraphs && $this->isWhitespacePlaceholder($part)) {
+                continue;
+            }
+            $chunks[] = $part;
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * True if $html renders no real visible content once a non-breaking
+     * space placeholder is discounted alongside actual tags/whitespace - the
+     * literal HTML entity ("&nbsp;", decimal "&#160;", hex "&#xa0;") a rich
+     * text editor (Outlook's compose window, confirmed live) writes for a
+     * blank line, and the raw UTF-8 non-breaking space character some mail
+     * clients emit directly instead of the entity. Deliberately narrower
+     * than "any whitespace" - a sender's own literal multiple spaces or
+     * regular blank content is left to hasVisibleText()'s normal handling;
+     * this only targets the specific placeholder pattern mail clients use to
+     * represent "an empty line", which is clutter rather than intentional
+     * content for a sender whose account has opted into stripping it (see
+     * $stripEmptyParagraphs).
+     */
+    private function isWhitespacePlaceholder(string $html): bool
+    {
+        $text = trim(wp_strip_all_tags($html));
+        $normalized = str_ireplace(['&nbsp;', '&#160;', '&#xa0;', "\xc2\xa0"], '', $text);
+        return trim($normalized) === '';
     }
 
     /**

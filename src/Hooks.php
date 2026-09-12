@@ -197,7 +197,7 @@ class Hooks
             // if that ran above) is saved exactly as-is, with no
             // <!-- wp:x --> block markup added at all.
             $converted = Settings::isHtmlEnabled()
-                ? $this->htmlToBlocks->convert($content, $this->registry)
+                ? $this->htmlToBlocks->convert($content, $this->registry, Settings::isStripEmptyParagraphsEnabled())
                 : $content;
 
             if (trim($converted) !== '') {

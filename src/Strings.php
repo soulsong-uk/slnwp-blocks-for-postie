@@ -39,6 +39,10 @@ class Strings
             'menu_title'   => __('HTML & Markdown Blocks', 'slnwp-blocks-for-postie'),
             'page_heading' => __('SLNWP Html and MD Blocks for Postie', 'slnwp-blocks-for-postie'),
 
+            // Settings page - warning notice, shown only when Postie's own
+            // "Preferred Text Type" account setting is Plain
+            'plain_text_warning' => __('Postie\'s "Preferred Text Type" is set to Plain. Headings and text alignment can only be detected in real HTML email content, so that formatting will be lost for anything outside <md> tags. For best results, set Postie\'s "Preferred Text Type" to HTML.', 'slnwp-blocks-for-postie'),
+
             // Settings page - Content Conversion subsection
             'content_conversion_heading'    => __('Content Conversion', 'slnwp-blocks-for-postie'),
             'markdown_toggle_label'         => __('Convert Markdown to Gutenberg Blocks', 'slnwp-blocks-for-postie'),
@@ -49,6 +53,8 @@ class Strings
             'markdown_toggle_example'       => __("<md>\n# Welcome!\nThis is **bold** and this is *italic*.\n- Item one\n- Item two\n</md>", 'slnwp-blocks-for-postie'),
             'html_toggle_label' => __('Convert content into native Gutenberg blocks', 'slnwp-blocks-for-postie'),
             'html_toggle_desc'  => __('Wraps the finished content - including any Markdown conversion above - in real Gutenberg block markup (paragraphs, headings, images, lists, quotes), so the post opens as separate, individually editable blocks instead of one Classic/HTML block.', 'slnwp-blocks-for-postie'),
+            'strip_empty_paragraphs_toggle_label' => __('Remove empty paragraph blocks', 'slnwp-blocks-for-postie'),
+            'strip_empty_paragraphs_toggle_desc'  => __('Some email apps insert a blank paragraph for every empty line you leave in your message. Turn this on to leave those out of the published post, instead of keeping them as empty-looking blocks.', 'slnwp-blocks-for-postie'),
         ];
     }
 }
