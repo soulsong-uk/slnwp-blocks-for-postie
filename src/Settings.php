@@ -195,7 +195,7 @@ class Settings
         <div class="wrap html-md-blocks-for-postie-settings-wrap">
             <h1><?php echo esc_html(Strings::get('page_heading')); ?></h1>
             <?php if ($this->postiePrefersPlainText()) : ?>
-                <div class="notice notice-warning">
+                <div class="html-md-blocks-for-postie-warning">
                     <p><?php echo esc_html(Strings::get('plain_text_warning')); ?></p>
                 </div>
             <?php endif; ?>

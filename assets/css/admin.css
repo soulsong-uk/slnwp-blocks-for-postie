@@ -43,6 +43,28 @@
     overflow-x: auto;
 }
 
+/* Deliberately NOT WordPress core's own ".notice"/".notice-warning" classes -
+   some plugins (confirmed live: "Booster for WooCommerce"/Booster Plus,
+   which scans the page for generic .notice elements to stash inside its own
+   hidden modal dialog, decluttering the admin screen) relocate any element
+   matching those classes into markup that's hidden by default, which made a
+   real warning here flash briefly on page load then vanish. A plugin-owned
+   class name this specific isn't a target for that kind of generic scan.
+   Styled to still read as a warning (WP's own notice-warning accent color)
+   so it's visually consistent with core notices without being one. */
+.html-md-blocks-for-postie-warning {
+    background: #fff;
+    border-left: 4px solid #dba617;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 20px;
+    max-width: 700px;
+}
+
+.html-md-blocks-for-postie-warning p {
+    margin: 0;
+}
+
 /* Dark-mode awareness (see workspace CLAUDE.md "Admin UI conventions"):
    third-party WP dashboard dark-mode plugins add body.dark-mode and restyle
    only WordPress core chrome, never a plugin's own custom panels - so the
@@ -64,4 +86,9 @@ body.dark-mode .html-md-blocks-for-postie-subsection {
 body.dark-mode .html-md-blocks-for-postie-example {
     background: #23282d;
     border-color: #3c434a;
+}
+
+body.dark-mode .html-md-blocks-for-postie-warning {
+    background: #2c3338;
+    color: #eceff1;
 }
