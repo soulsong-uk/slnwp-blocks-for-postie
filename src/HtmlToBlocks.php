@@ -29,13 +29,21 @@ defined('ABSPATH') || exit;
  * since detectAlign() itself only ever inspects one element; an inner
  * element that declares its own alignment still overrides the inherited one.
  *
- * Uses Postie's own bundled simple_html_dom parser (via $g_postie->load_html())
- * rather than adding a second vendored dependency or requiring ext-dom -
- * it is guaranteed loaded, since this class only ever runs while Postie
- * itself is active and mid-pipeline.
+ * Parses with this plugin's own bundled, namespaced copy of
+ * simple_html_dom 1.9.1 (vendor/simple_html_dom.php). It used to borrow
+ * Postie's copy via $g_postie->load_html(), but Postie 1.9.83 swapped that
+ * for voku/simple_html_dom, which has a different API (no public "nodes"
+ * or "nodetype", no HDOM_TYPE_* constants). Every conversion then silently
+ * fell back to saving the raw HTML. Bundling the same parser keeps every
+ * parser-quirk workaround below (orphaned </p> text nodes, implicit <p>
+ * closing, "<<a ...>>" desync) behaving exactly as it was verified to.
  */
 class HtmlToBlocks
 {
+    /** simple_html_dom node types (its HDOM_TYPE_ELEMENT / HDOM_TYPE_TEXT). */
+    private const NODE_ELEMENT = 1;
+    private const NODE_TEXT    = 3;
+
     /**
      * Whether a paragraph chunk whose only "content" is a non-breaking-space
      * placeholder (see isWhitespacePlaceholder()) should be dropped instead
@@ -78,15 +86,15 @@ class HtmlToBlocks
 
     private function convertInternal(string $html, AttachmentRegistry $registry): string
     {
-        global $g_postie;
-        if (empty($g_postie) || !method_exists($g_postie, 'load_html')) {
-            return $html;
-        }
+        require_once HTML_MD_BLOCKS_FOR_POSTIE_PLUGIN_DIR . 'vendor/simple_html_dom.php';
 
         $html = $this->flattenNestedAnchors($html);
         $html = $this->stripBracketWrappedAnchors($html);
 
-        $dom = $g_postie->load_html($html);
+        // Same arguments Postie 1.9.80's own load_html() used: lowercase
+        // tags, force tags closed, UTF-8, keep \r\n (splitOnBlankLines()
+        // needs the real line breaks).
+        $dom = \HtmlMdBlocksForPostie\Vendor\SimpleHtmlDom\str_get_html($html, true, true, 'UTF-8', false);
         if (!$dom) {
             return $html;
         }
@@ -196,7 +204,7 @@ class HtmlToBlocks
             return [];
         }
 
-        if ($node->nodetype === HDOM_TYPE_TEXT) {
+        if ($node->nodetype === self::NODE_TEXT) {
             $text = trim((string) $node->outertext);
             if ($text === '' || $this->isOrphanedTagFragment($text)) {
                 return [];
@@ -208,7 +216,7 @@ class HtmlToBlocks
             return $blocks;
         }
 
-        if ($node->nodetype !== HDOM_TYPE_ELEMENT) {
+        if ($node->nodetype !== self::NODE_ELEMENT) {
             return [];
         }
 
@@ -376,7 +384,7 @@ class HtmlToBlocks
 
         $items = [];
         foreach ($this->childNodes($node) as $child) {
-            if (!isset($child->nodetype) || $child->nodetype !== HDOM_TYPE_ELEMENT
+            if (!isset($child->nodetype) || $child->nodetype !== self::NODE_ELEMENT
                 || strtolower((string) $child->tag) !== 'li') {
                 continue;
             }
@@ -430,7 +438,7 @@ class HtmlToBlocks
         $textParts        = [];
 
         foreach ($this->childNodes($node) as $child) {
-            if (isset($child->nodetype) && $child->nodetype === HDOM_TYPE_ELEMENT) {
+            if (isset($child->nodetype) && $child->nodetype === self::NODE_ELEMENT) {
                 $childTag = strtolower((string) $child->tag);
                 if ($childTag === 'ul' || $childTag === 'ol') {
                     $nestedListBlock = $this->listBlock($child, $childTag === 'ol');
@@ -495,7 +503,7 @@ class HtmlToBlocks
         $buffer = '';
 
         foreach ($this->childNodes($node) as $child) {
-            if (!isset($child->nodetype) || $child->nodetype !== HDOM_TYPE_ELEMENT) {
+            if (!isset($child->nodetype) || $child->nodetype !== self::NODE_ELEMENT) {
                 $buffer .= (string) $child->outertext;
                 continue;
             }
@@ -736,7 +744,7 @@ class HtmlToBlocks
      */
     private function soleImageDescendant($node)
     {
-        if (!isset($node->nodetype) || $node->nodetype !== HDOM_TYPE_ELEMENT) {
+        if (!isset($node->nodetype) || $node->nodetype !== self::NODE_ELEMENT) {
             return null;
         }
 
@@ -750,7 +758,7 @@ class HtmlToBlocks
 
         $elementChildren = [];
         foreach ($this->childNodes($node) as $child) {
-            if (isset($child->nodetype) && $child->nodetype === HDOM_TYPE_TEXT) {
+            if (isset($child->nodetype) && $child->nodetype === self::NODE_TEXT) {
                 if (trim((string) $child->outertext) !== '') {
                     return null;
                 }
