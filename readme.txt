@@ -4,7 +4,7 @@ Tags: postie, email, markdown, gutenberg, blocks
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 0.1.22
+Stable tag: 0.1.23
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,9 @@ This is deliberate, not automatic: this plugin never guesses whether some arbitr
 1. The plugin's settings page, under Postie's menu - turn HTML block conversion and Markdown parsing on or off independently.
 
 == Changelog ==
+
+= 0.1.23 =
+* Fix: emails were saved as one raw-HTML block with Postie 1.9.83 and later - the plugin now bundles its own HTML parser instead of relying on Postie's
 
 = 0.1.22 =
 * Fix: settings-page warning about Postie's Preferred Text Type no longer gets hidden by the Booster for WooCommerce plugin's notice-collapsing behavior
